@@ -469,7 +469,7 @@ Contributions welcome! Please:
 
 ## 🙏 Acknowledgments
 
-- This project was developed according to the specification defined here: [Realtime Leaderboard System spec](https://roadmap.sh/projects/realtime-leaderboard-system).
+- This project was developed according to the specification defined here: [Realtime Leaderboard System spec](https://roadmap.sh/projects/realtime-leaderboard-system)
 - Built as a learning project following industry best practices
 - Inspired by real-time leaderboard systems from gaming platforms
 - Thanks to the Go, Redis, and PostgreSQL communities
