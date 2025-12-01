@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic Leaderboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.8)); }
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+
+        .user-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge.active {
+            display: flex;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            padding: 6px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .auth-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #cbd5e0;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .switch-view {
+            text-align: center;
+            margin-top: 25px;
+            color: #a0aec0;
+        }
+
+        .switch-link {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .switch-link:hover {
+            color: #f093fb;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #86efac;
+        }
+
+        .game-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .score-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5em;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 30px 0;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .score-btn {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .score-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .score-btn:active {
+            transform: scale(0.95);
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .leaderboard-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .leaderboard-list::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            font-weight: bold;
+            margin-right: 20px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .rank-1 {
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+            text-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+            text-shadow: 0 0 20px rgba(205, 127, 50, 0.6);
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .player-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 968px) {
+            .game-view {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 2.5em;
+            }
+
+            .user-badge {
+                position: static;
+                margin: 20px auto;
+                width: fit-content;
+            }
+
+            .auth-box {
+                padding: 40px 30px;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="user-badge" id="userBadge">
+            <span class="user-name" id="userName"></span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+        <h1 class="logo">LEADERBOARD</h1>
+        <p class="tagline">Compete. Dominate. Conquer.</p>
+    </div>
+
+    <div class="main-content">
+        <div id="loginView" class="auth-container">
+            <div class="auth-box">
+                <h2 class="auth-title">Sign In</h2>
+                <div id="loginMessage"></div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="loginUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enter Arena</button>
+                </form>
+                <div class="switch-view">
+                    No account? <a class="switch-link" id="showRegister">Create one</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="registerView" class="auth-container hidden">
+            <div class="auth-box">
+                <h2 class="auth-title">Create Account</h2>
+                <div id="registerMessage"></div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="registerPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Join Now</button>
+                </form>
+                <div class="switch-view">
+                    Have an account? <a class="switch-link" id="showLogin">Sign in</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameView" class="game-view hidden">
+            <div class="game-card">
+                <h3 class="card-title">Your Score</h3>
+                <div class="score-display" id="currentScore">0</div>
+                <div class="form-group">
+                    <label class="form-label">Enter Amount</label>
+                    <input type="number" class="form-input" id="scoreInput" placeholder="Enter points" min="1" value="10">
+                </div>
+                <div class="score-controls">
+                    <button class="score-btn" id="decreaseScore">- Subtract</button>
+                    <button class="score-btn" id="increaseScore">+ Add</button>
+                </div>
+                <button class="btn btn-primary" id="submitScore">Submit Score</button>
+            </div>
+
+            <div class="game-card">
+                <h3 class="card-title">🏆 Top Players</h3>
+                <ul class="leaderboard-list" id="leaderboardList">
+                    <li class="empty-state">
+                        <div class="empty-icon">🎮</div>
+                        <div>Loading rankings...</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:8080';
+    let token = localStorage.getItem('token') || '';
+    let currentScore = 0;
+    let currentUsername = localStorage.getItem('username') || '';
+
+    const loginView = document.getElementById('loginView');
+    const registerView = document.getElementById('registerView');
+    const gameView = document.getElementById('gameView');
+    const userBadge = document.getElementById('userBadge');
+    const userName = document.getElementById('userName');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    const showRegisterBtn = document.getElementById('showRegister');
+    const showLoginBtn = document.getElementById('showLogin');
+    const increaseScoreBtn = document.getElementById('increaseScore');
+    const decreaseScoreBtn = document.getElementById('decreaseScore');
+    const submitScoreBtn = document.getElementById('submitScore');
+
+    function createStars() {
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    }
+
+    createStars();
+
+    if (token && currentUsername) {
+        showGameView();
+        fetchLeaderboard();
+    }
+
+    showRegisterBtn.addEventListener('click', () => {
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+    });
+
+    showLoginBtn.addEventListener('click', () => {
+        registerView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+    });
+
+    loginForm.addEventListener('submit', handleLogin);
+    registerForm.addEventListener('submit', handleRegister);
+    logoutBtn.addEventListener('click', handleLogout);
+    increaseScoreBtn.addEventListener('click', () => updateScore(1));
+    decreaseScoreBtn.addEventListener('click', () => updateScore(-1));
+    submitScoreBtn.addEventListener('click', handleSubmitScore);
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const messageDiv = document.getElementById('loginMessage');
+
+        try {
+            loginForm.classList.add('loading');
+            const res = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                token = data.token;
+                currentUsername = username;
+                localStorage.setItem('token', token);
+                localStorage.setItem('username', username);
+                showGameView();
+                fetchLeaderboard();
+            } else {
+                const data = await res.json();
+                showError(messageDiv, data.error || 'Login failed');
+            }
+        } catch (err) {
+            showError(messageDiv, 'Network error. Check connection.');
+        } finally {
+            loginForm.classList.remove('loading');
+        }
+    }
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
+        const messageDiv = document.getElementById('registerMessage');
+
+        try {
+            registerForm.classList.add('loading');
+            const res = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                showSuccess(messageDiv, 'Account created! Please sign in.');
+                setTimeout(() => {
+                    registerView.classList.add('hidden');
+                    loginView.classList.remove('hidden');
+                }, 1500);
+            } else {
+                const data = await res.json();
+                showError(messageDiv, data.error || 'Registration failed');
+            }
+        } catch (err) {
+            showError(messageDiv, 'Network error. Check connection.');
+        } finally {
+            registerForm.classList.remove('loading');
+        }
+    }
+
+    async function fetchLeaderboard() {
+        try {
+            const res = await fetch(`${API_URL}/leaderboard`);
+            const data = await res.json();
+            displayLeaderboard(data || []);
+        } catch (err) {
+            console.error('Failed to fetch leaderboard:', err);
+        }
+    }
+
+    function displayLeaderboard(data) {
+        const list = document.getElementById('leaderboardList');
+        if (data.length === 0) {
+            list.innerHTML = `
+                    <li class="empty-state">
+                        <div class="empty-icon">🎮</div>
+                        <div>No scores yet. Be the first!</div>
+                    </li>
+                `;
+            return;
+        }
+
+        list.innerHTML = data.map((entry, index) => {
+            const rankClass = index < 3 ? `rank-${index + 1}` : '';
+            const medal = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+            return `
+                    <li class="leaderboard-item">
+                        <div class="rank ${rankClass}">${medal}</div>
+                        <div class="player-info">
+                            <div class="player-name">${entry.username || entry.Username}</div>
+                            <div class="player-score">${entry.score || entry.Score} pts</div>
+                        </div>
+                    </li>
+                `;
+        }).join('');
+    }
+
+    function updateScore(multiplier) {
+        const inputValue = parseInt(document.getElementById('scoreInput').value) || 10;
+        const delta = inputValue * multiplier;
+        currentScore = Math.max(0, currentScore + delta);
+        document.getElementById('currentScore').textContent = currentScore;
+    }
+
+    async function handleSubmitScore() {
+        if (currentScore <= 0) {
+            alert('Score must be greater than 0!');
+            return;
+        }
+
+        try {
+            submitScoreBtn.classList.add('loading');
+            const res = await fetch(`${API_URL}/score`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ score: currentScore })
+            });
+
+            if (res.ok) {
+                alert('Score submitted successfully!');
+                fetchLeaderboard();
+            } else {
+                alert('Failed to submit score');
+            }
+        } catch (err) {
+            alert('Network error. Check connection.');
+        } finally {
+            submitScoreBtn.classList.remove('loading');
+        }
+    }
+
+    function handleLogout() {
+        token = '';
+        currentUsername = '';
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        currentScore = 0;
+        document.getElementById('currentScore').textContent = '0';
+        gameView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+        userBadge.classList.remove('active');
+    }
+
+    function showGameView() {
+        loginView.classList.add('hidden');
+        registerView.classList.add('hidden');
+        gameView.classList.remove('hidden');
+        userBadge.classList.add('active');
+        userName.textContent = currentUsername;
+    }
+
+    function showError(element, message) {
+        element.innerHTML = `<div class="message error">${message}</div>`;
+        setTimeout(() => element.innerHTML = '', 5000);
+    }
+
+    function showSuccess(element, message) {
+        element.innerHTML = `<div class="message success">${message}</div>`;
+        setTimeout(() => element.innerHTML = '', 5000);
+    }
+</script>
+</body>
+</html>
